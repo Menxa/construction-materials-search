@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Material Price Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        .error {
+            color: red;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Construction Material Price Search</h1>
+        <input type="text" id="materialInput" placeholder="Enter material name (e.g., Cement)" />
+        <button onclick="searchMaterial()">Search</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        // Load the materials data from the JSON file
+        let materials = {};
+
+        fetch('materials.json')
+            .then(response => response.json())
+            .then(data => {
+                materials = data.reduce((acc, item) => {
+                    acc[item.Material] = item.Price;
+                    return acc;
+                }, {});
+            })
+            .catch(error => console.error('Error loading materials:', error));
+
+        // Function to search for a material and display its price
+        function searchMaterial() {
+            const input = document.getElementById('materialInput').value.trim();
+            const resultDiv = document.getElementById('result');
+
+            if (!input) {
+                resultDiv.innerHTML = '<span class="error">Please enter a material name.</span>';
+                return;
+            }
+
+            const materialPrice = materials[input];
+
+            if (materialPrice !== undefined) {
+                resultDiv.innerHTML = `<strong>${input}</strong> costs <strong>${materialPrice} units</strong>.`;
+            } else {
+                resultDiv.innerHTML = '<span class="error">Material not found. Please check the spelling.</span>';
+            }
+        }
+    </script>
+
+</body>
+</html>

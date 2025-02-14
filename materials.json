@@ -1,0 +1,41 @@
+import PyPDF2
+import pandas as pd
+
+def extract_data_from_pdf(pdf_path):
+    # Open the PDF file
+    with open(pdf_path, 'rb') as file:
+        reader = PyPDF2.PdfReader(file)
+        
+        # Initialize an empty list to store the data
+        data = []
+        
+        # Loop through all pages
+        for page_num in range(len(reader.pages)):
+            page = reader.pages[page_num]
+            text = page.extract_text()
+            
+            # Split the text into lines
+            lines = text.split('\n')
+            
+            # Iterate over the lines and extract material and price
+            for line in lines:
+                if ' ' in line:  # Assuming material names and prices are separated by a space
+                    parts = line.split(' ', 1)
+                    if len(parts) == 2:
+                        material, price = parts
+                        try:
+                            price = float(price.replace(',', ''))  # Remove commas if present
+                        except ValueError:
+                            continue  # Skip if the price is not a number
+                        data.append({'Material': material, 'Price': price})
+    
+    # Convert the list of dictionaries to a DataFrame
+    df = pd.DataFrame(data)
+    return df
+
+# Example usage
+pdf_path = 'construction_materials.pdf'  # Replace with your PDF file path
+df = extract_data_from_pdf(pdf_path)
+
+# Save the extracted data to a JSON file
+df.to_json('materials.json', orient='records', indent=4)
